@@ -2,6 +2,7 @@ var cards;
 
 var board;
 
+var pmode = false;
 // Newgame function
 	// Picks correct distribution of cards
 	// Sets data structure to cards & blank board
@@ -40,6 +41,7 @@ var addToDeck = function(deck, start, end, number) {
 	}
 }
 
+// This should only be called once per new game or re-written
 var renderCards = function () {
 	// Add the first 5 cards to the card area
 	var newtext = cards.slice(0,5).map(function (card) {
@@ -59,7 +61,7 @@ var validateBoard = function () {
 	board.forEach(function (t) {
 		t.leading = false;
 		t.trailing = false;
-		t.valid = false;
+		t.valid = true;
 	})
 	// Set leading & trailing
 	if (board.length==1) {
@@ -71,7 +73,7 @@ var validateBoard = function () {
 		board[0].leading = true;
 		last = board[board.length - 1];
 		last.trailing = true;
-		if ("/*+-".includes(last.expr)) 
+		if ("/*+-()".includes(last.expr)) 
 			last.valid = false;
 		else {
 			last.valid = true;
@@ -85,16 +87,20 @@ var updateScore = function () {
 	var score = eval(board.map(function (c) {return c.expr})
 		.join(" "));
 	$("#total").text(score);
-	if (score===cards[5].num) {
+	if (cards.slice(0,5).every(function (c) {return c.used}) &&
+		score===cards[5].num) {
 		// They win!
 		alert("You win!");
 	}
 }
+
 //Render board function
 var renderBoard = function () {
 	validateBoard()
+	// Go through and render the list
 	$("#board").html(board.map(function (c) {return c.render()})
 		.join(" "));
+	// Add the remove event listener for the trailing number/op
 	$(".trailing").click(function (ev) {
 		var last = board.pop();
 		if (last.valid) {
@@ -137,6 +143,7 @@ var topCardClick = function (ev) {
 	}
 }
 
+// Operator -> Adds to expression, enables top cards if available
 var opClick = function (ev) {
 	if (board.length == 0) {
 		return;
@@ -152,9 +159,9 @@ var opClick = function (ev) {
 
 }
 
-	// Operator -> Adds to expression, enables top cards if available
-	// Parenthesis Start ->
-	// Parenthesis End ->
+	// Parenthesis -> 
+	//	No rparen on leading, no lparen on trailing
+	// No parens around just one term
 
 // Term
 	// render:
@@ -173,23 +180,71 @@ TopCard.prototype.render = function() {
 }
 
 function Term(expr) {
-	this.expr = expr;
-	this.trailing = false;
-	this.leading = true;
-	this.valid = false;
+	this._expr = expr;
+	this.trailing = false; // Last item in board
+	this.leading = true; // First item in board
+	this.valid = false; // Whether last item is an operator or not
+	this.actual = true; // Whether just for visualization, no expr val
 	};
+
+	Object.defineProperty(Term.prototype, "expr", {
+		get: function() {
+			if (this.actual){
+				return this._expr;
+			} else {
+				return " "
+			}
+		}
+	})
+
 
 Term.prototype.render = function () {
 	var extra = "";
-	if (this.leading)
+	var pre = "<a class=\"btn btn-default btn-lg lparen\">(</a> ";
+	var post = " <a class=\"btn btn-default btn-lg rparen\">)</a>";
+	if (this.leading) {
 		extra += " leading";
-	if (this.trailing)
+		post = "";
+	}
+	if (this.trailing) {
 		extra += " trailing";
-	if (!this.valid)
+		pre = "";
+	}
+	if (!this.valid) {
 		extra += " invalid";
-	return "<a class=\"btn btn-default btn-lg" + extra + "\">" + this.expr + "</a>";
+		pre = "";
+		post = "";
+	}
+	if (!pmode) {
+		pre = "";
+		post ="";
+	}
+	return pre + "<a class=\"btn btn-default btn-lg" 
+		+ extra + "\">" + this.expr + "</a>" 
+		+ post;
 };
 
 
 // Wire up the op buttons
 $(".btn-op").click(opClick);
+$(".btn-par").click(function (ev) {
+	pmode = !pmode;
+	// Procedure: Adds the left parens, index of children = array index
+	// non-actual are not visualized
+	// actual but not valid is an unmatched parenthesis
+	// Right parenthesis shown for selection
+	// paren is valid and actual when both are there
+
+	//if pmode : logic to add in non-actual paren elems
+
+	renderBoard();
+	//Event Listeners for lparen, rparen
+		//Mark as selected
+		//
+})
+
+// TODO: Actual onload section
+// TODO: Error messages instead of alert
+// TODO: Check for fractions/negative numbers
+// TODO: Better GUI hints for what actions are available
+// TODO: Fix score for when an op is removed
