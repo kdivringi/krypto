@@ -251,8 +251,9 @@ var makeParens = function () {
 	} else if (pmode && board.every(function (b) {return b.actual && b.expr!="("})) {
 		// No nonactual objs, left parenthesis time
 		var numbers = board.filter(function (b) {
-			return !"/*+-()".includes(b.expr) && // Not just an operation
-				!b.expr.includes("("); // Not parenthesis either
+			return (!"/*+-()".includes(b.expr) && // Not just an operation
+				!b.expr.includes("(")) ||
+				b instanceof Paren; // Not parenthesis either
 		});
 		for (var i = 0; i < numbers.length; i++) {
 			if (numbers[i].trailing) {
@@ -283,8 +284,9 @@ var makeParens = function () {
 		// rparen as appropriate on the rest
 		var subset = board.slice(board.indexOf(lparen), board.length)
 			.filter(function (b) {
-			return !"/*+-()".includes(b.expr) && // Not just an operation
-				!b.expr.includes("("); // Not parenthesis either
+			return (!"/*+-()".includes(b.expr) && // Not just an operation
+				!b.expr.includes("(")) ||
+				b instanceof Paren; // Not parenthesis either
 		});
 		for (var i = 0; i < subset.length; i++) {
 			if (i===0) { // No rparen around just one term
@@ -307,43 +309,45 @@ var makeParens = function () {
 	// and only far enough away right parens
 }
 
-// Wire up the op buttons
-$(".btn-op").click(opClick);
-$(".btn-par").click(function (ev) {
-	if (pmode) {
-		pmode = false;
-		makeParens();
-		renderBoard();
-		return;
-	// If last is an operator, ignore
-	} else if (!board[board.length -1].valid) {
-		return;
-	}
-	pmode = true;
-	makeParens();
-	renderBoard();
-
-	//Event Listeners for lparen, rparen
-	$(".lparen").click(function (ev) {
-		$.data(ev.target, "term").actual = true;
-		makeParens();
-		renderBoard();
-		$(".rparen").click(function (ev) {
-			// Replace inner bounds of parenthesis with Paren
-			var rparen = $.data(ev.target, "term");
-			rparen.actual = true;
-			var lparen = board.filter(function (b) {return b.expr==="("})[0];
-			var terms = board.slice(board.indexOf(lparen) + 1, 
-				board.indexOf(rparen));
-			var newp = new Paren(terms);
-			board.splice(board.indexOf(lparen), terms.length + 2, newp);
+$(function () {
+	newGame();
+	// Wire up the op buttons
+	$(".btn-op").click(opClick);
+	$(".btn-par").click(function (ev) {
+		if (pmode) {
 			pmode = false;
 			makeParens();
 			renderBoard();
-		});
-	});
-})
+			return;
+		// If last is an operator, ignore
+		} else if (!board[board.length -1].valid) {
+			return;
+		}
+		pmode = true;
+		makeParens();
+		renderBoard();
 
+		//Event Listeners for lparen, rparen
+		$(".lparen").click(function (ev) {
+			$.data(ev.target, "term").actual = true;
+			makeParens();
+			renderBoard();
+			$(".rparen").click(function (ev) {
+				// Replace inner bounds of parenthesis with Paren
+				var rparen = $.data(ev.target, "term");
+				rparen.actual = true;
+				var lparen = board.filter(function (b) {return b.expr==="("})[0];
+				var terms = board.slice(board.indexOf(lparen) + 1, 
+					board.indexOf(rparen));
+				var newp = new Paren(terms);
+				board.splice(board.indexOf(lparen), terms.length + 2, newp);
+				pmode = false;
+				makeParens();
+				renderBoard();
+			});
+		});
+	})
+});
 // TODO: Actual onload section
 // TODO: Error messages instead of alert
 // TODO: Check for fractions/negative numbers
