@@ -1,3 +1,7 @@
+var cards;
+
+var board;
+
 // Newgame function
 	// Picks correct distribution of cards
 	// Sets data structure to cards & blank board
@@ -15,14 +19,14 @@ var newGame = function() {
 	addToDeck(deck, 18, 25, 1);
 
 	// Draw the cards
-	var cards = [];
+	cards = [];
 	for (var i = 0; i < 6; i++) {
 		var num = Math.floor(Math.random()*deck.length);
-		cards.push(deck[num]);
+		cards.push(new TopCard(deck[num]));
 		deck.splice(num, 1);
 	}
-	return cards;
-
+	renderCards();
+	// Clear board
 }
 
 var addToDeck = function(deck, start, end, number) {
@@ -32,17 +36,19 @@ var addToDeck = function(deck, start, end, number) {
 		}
 	}
 }
-var renderCards = function (cards) {
-	// Add the first 5 cards to the card area
 
-	var newtext = ""
-	cards.slice(0,5).forEach(function (card) {
-		newtext += "<a class=\"btn btn-default btn-lg\">" +
-		String(card) + "</a>"
-	});
+var renderCards = function () {
+	// Add the first 5 cards to the card area
+	var newtext = cards.slice(0,5).map(function (card) {
+		return card.render();
+	}).join(" ");
 	$("#cards").html(newtext);
+	$(".topCard").click(topCardClick)
 	// Add the last card to the goal area
-	$("#goal").text(String(cards.pop()));
+	$("#goal").text(String(cards[5].num));
+
+	// Total is zero
+	$("#total").text("0");
 }
 
 
@@ -55,6 +61,18 @@ var renderCards = function (cards) {
 
 // Move function
 	// Top card -> Adds to expressions, sets other card inactive, adds operators if not last card
+var topCardClick = function (ev) {
+	var num = Number(ev.target.text);
+	var index = cards.slice(0,5).map(function (c) {return c.num}).indexOf(num)
+	if (cards[index].used) {
+		return;
+	}
+	else {
+		cards[index].used = true;
+		renderCards();
+	}
+}
+
 	// Operator -> Adds to expression, enables top cards if available
 	// Parenthesis Start ->
 	// Parenthesis End ->
@@ -64,6 +82,16 @@ var renderCards = function (cards) {
 		// Number: Add button, parenthesis hover left if not trailing, right if not leading or term paren
 		// Op: If trailing, 4 buttons
 		// Pgroup: Same rules as number, able to return inner group if parenthesis is deleted
+
+function TopCard(num) {
+	this.num = num;
+	this.used = false;
+}
+
+TopCard.prototype.render = function() {
+	var active = this.used ? " disabled" : "";
+	return "<a class=\"btn btn-default btn-lg topCard" + active + "\">" + this.num + "</a>"
+}
 
 function Term(expr) {
 	this.expr = expr;
