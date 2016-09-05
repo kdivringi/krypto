@@ -27,9 +27,12 @@ var newGame = function() {
 	}
 	renderCards();
 	// Clear board
+	board = [];
+	renderBoard();
 }
 
 var addToDeck = function(deck, start, end, number) {
+	// Utility function for adding cards to deck
 	for (var i = 0; i < number; i++) {
 		for (var j = start; j <= end; j++) {
 			deck.push(j);
@@ -43,7 +46,7 @@ var renderCards = function () {
 		return card.render();
 	}).join(" ");
 	$("#cards").html(newtext);
-	$(".topCard").click(topCardClick)
+	$(".topCard").click(topCardClick);
 	// Add the last card to the goal area
 	$("#goal").text(String(cards[5].num));
 
@@ -51,8 +54,35 @@ var renderCards = function () {
 	$("#total").text("0");
 }
 
-
+var validateBoard = function () {
+	// Reset everything
+	board.forEach(function (t) {
+		t.leading = false;
+		t.trailing = false;
+		t.valid = false;
+	})
+	// Set leading & trailing
+	if (board.length==1) {
+		board[0].trailing = true;
+		board[0].leading = true;
+		board[0].valid = true;
+	} else if (board.length > 1) {
+		board[0].leading = true;
+		last = board[board.length - 1];
+		last.trailing = true;
+		if ("/*+-".includes(last.expr)) 
+			last.valid = false;
+		else
+			last.valid = true;
+	}
+	//
+}
 //Render board function
+var renderBoard = function () {
+	validateBoard()
+	$("#board").html(board.map(function (c) {return c.render()})
+		.join(" "));
+}
 	// Set active/inactive states on top cards
 	// Draws expression area
 		//
@@ -62,15 +92,39 @@ var renderCards = function () {
 // Move function
 	// Top card -> Adds to expressions, sets other card inactive, adds operators if not last card
 var topCardClick = function (ev) {
+	// If last term is valid, can't add a card
+	if ((board.length != 0) && (board[board.length - 1].valid))
+		return;
 	var num = Number(ev.target.text);
-	var index = cards.slice(0,5).map(function (c) {return c.num}).indexOf(num)
+	var index = cards.slice(0,5)
+		.map(function (c) {
+			if (c.used)
+				return -1;
+			else
+				return c.num;
+		}).indexOf(num)
 	if (cards[index].used) {
 		return;
-	}
-	else {
+	} else {
+		// If last term is invalid or board is [], can add
 		cards[index].used = true;
 		renderCards();
+		board.push(new Term(cards[index].num));
+		renderBoard();
 	}
+}
+
+var opClick = function (ev) {
+	if (board.length == 0) {
+		return;
+	} else if (!board[board.length - 1].valid) {
+		return;
+	} else {	
+		var op = ev.target.text;
+		board.push(new Term(op));
+		renderBoard();
+	}
+
 }
 
 	// Operator -> Adds to expression, enables top cards if available
@@ -101,5 +155,16 @@ function Term(expr) {
 	};
 
 Term.prototype.render = function () {
-	return "<a class=\"btn btn-default btn-lg\">" + this.expr + "</a>";
+	var extra = "";
+	if (this.leading)
+		extra += " leading";
+	if (this.trailing)
+		extra += " trailing";
+	if (!this.valid)
+		extra += " invalid";
+	return "<a class=\"btn btn-default btn-lg" + extra + "\">" + this.expr + "</a>";
 };
+
+
+// Wire up the op buttons
+$(".btn-op").click(opClick);
