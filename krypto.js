@@ -30,6 +30,7 @@ var newGame = function() {
 	// Clear board
 	board = [];
 	renderBoard();
+	pmode = false;
 }
 
 var addToDeck = function(deck, start, end, number) {
@@ -84,7 +85,7 @@ var validateBoard = function () {
 }
 
 var updateScore = function () {
-	var score = eval(board.map(function (c) {return c.expr})
+	var score = eval(board.map(function (c) {return c.value()})
 		.join(" "));
 	$("#total").text(score);
 	if (cards.slice(0,5).every(function (c) {return c.used}) &&
@@ -106,10 +107,15 @@ var renderBoard = function () {
 	})
 	// Add the remove event listener for the trailing number/op
 	$(".trailing").click(function (ev) {
+		if (pmode) {return;};
 		var last = board.pop();
-		if (last.valid) {
+		if (last instanceof Paren) {
+			// Explode the parenthesis
+			board = board.concat(last._expr);
+		}
+		else if (last.valid) {
 			cards.filter(function (c) {
-				return c.used && c.num === last.expr
+				return c.used && c.num === Number(last.expr)
 			})[0].used = false;
 		}
 		renderBoard();
@@ -145,6 +151,7 @@ var topCardClick = function (ev) {
 
 // Operator -> Adds to expression, enables top cards if available
 var opClick = function (ev) {
+	if (pmode) {return;}
 	if (board.length == 0) {
 		return;
 	} else if (!board[board.length - 1].valid) {
@@ -185,43 +192,34 @@ function Term(expr) {
 	this.leading = true; // First item in board
 	this.valid = false; // Whether last item is an operator or not
 	this.actual = true; // Whether just for visualization, no expr val
+	this.extra_base = "";
 	};
 
+// TODO: Is this really necessary now?
 Object.defineProperty(Term.prototype, "expr", {
-	get: function() {
-		if (this.actual){
-			return this._expr;
+	get: function() {return String(this._expr);}
+})
+
+Term.prototype.value = function () {
+	if (!"()".includes(this.expr)) {
+			return this.expr;
 		} else {
 			return " "
 		}
-	}
-})
-
-
+}
 Term.prototype.render = function () {
-	var extra = "";
-	var pre = "<a class=\"btn btn-default btn-lg lparen\">(</a> ";
-	var post = " <a class=\"btn btn-default btn-lg rparen\">)</a>";
+	var extra = this.extra_base;
 	if (this.leading) {
 		extra += " leading";
-		post = "";
 	}
 	if (this.trailing) {
 		extra += " trailing";
-		pre = "";
 	}
 	if (!this.valid) {
 		extra += " invalid";
-		pre = "";
-		post = "";
 	}
-	if (!pmode) {
-		pre = "";
-		post ="";
-	}
-	return pre + "<a class=\"btn btn-default btn-lg" 
-		+ extra + "\">" + this.expr + "</a>" 
-		+ post;
+	return "<a class=\"btn btn-default btn-lg" 
+		+ extra + "\">" + this.expr + "</a>";
 };
 
 // Parenthesis subclass of Term
@@ -233,21 +231,24 @@ function Paren(terms) {
 Paren.prototype = Object.create(Term.prototype);
 Object.defineProperty(Paren.prototype, "expr", {
 	get:function() {
-		if (this.actual) {
-			return "( " + this._expr
-			.map(function (e) {return e.expr;})
-			.join(" ") + " )";
-		} else {
-			return " ";
-		}
+		return "( " + this._expr
+		.map(function (e) {return e.expr;})
+		.join(" ") + " )";
 	}
 })
 
 var makeParens = function () {
+	if (!pmode) {
+		// pmode is off or cancelled, remove all nonactual & nonvalid parens
+		var todel = board.filter(function (b) {return "()".includes(b.expr);});
+		for (var i = 0; i < todel.length; i++) {
+			board.splice(board.indexOf(todel[i]),1);
+		}
+	}
 	if (board.length < 3) { // Not enough terms
 		pmode = false;
 		return;
-	} else if (pmode && board.every(function (b) {return b.actual})) {
+	} else if (pmode && board.every(function (b) {return b.actual && b.expr!="("})) {
 		// No nonactual objs, left parenthesis time
 		var numbers = board.filter(function (b) {
 			return !"/*+-()".includes(b.expr) && // Not just an operation
@@ -261,10 +262,10 @@ var makeParens = function () {
 				// We know it's not the last, and that the last is not an operator
 				var newp = new Term("(");
 				newp.actual = false; //Other properties set by validation
-				board.splice(board.indexOf(numbers[0]),0,newp);
+				newp.extra_base += " lparen";
+				board.splice(board.indexOf(numbers[i]),0,newp);
 			}
 		}
-
 
 	} else if (pmode && board.some(function (b) {return b.actual && b.expr==="("})) {
 		// Actual lparen detected, right parenthesis time
@@ -280,7 +281,7 @@ var makeParens = function () {
 			board.splice(board.indexOf(todel[i]),1);
 		}
 		// rparen as appropriate on the rest
-		var subset = board.slice(board.indexOf(lparen), board.length - 1)
+		var subset = board.slice(board.indexOf(lparen), board.length)
 			.filter(function (b) {
 			return !"/*+-()".includes(b.expr) && // Not just an operation
 				!b.expr.includes("("); // Not parenthesis either
@@ -291,14 +292,9 @@ var makeParens = function () {
 			} else {
 				var newp = new Term(")");
 				newp.actual = false;
-				board.splice(board.indexOf(subset[i]), 0, newp);
+				newp.extra_base += " rparen";
+				board.splice(board.indexOf(subset[i]) + 1, 0, newp);
 			}
-		}
-	} else {
-		// pmode is off or cancelled, remove all nonactual & nonvalid parens
-		var todel = board.filter(function (b) {return "()".includes(b.expr);});
-		for (var i = 0; i < todel.length; i++) {
-			board.splice(board.indexOf(todel[i]),1);
 		}
 	}
 	
@@ -314,15 +310,38 @@ var makeParens = function () {
 // Wire up the op buttons
 $(".btn-op").click(opClick);
 $(".btn-par").click(function (ev) {
+	if (pmode) {
+		pmode = false;
+		makeParens();
+		renderBoard();
+		return;
 	// If last is an operator, ignore
-	if (!board[board.length -1].valid) {
+	} else if (!board[board.length -1].valid) {
 		return;
 	}
-	pmode = !pmode;
+	pmode = true;
 	makeParens();
 	renderBoard();
 
 	//Event Listeners for lparen, rparen
+	$(".lparen").click(function (ev) {
+		$.data(ev.target, "term").actual = true;
+		makeParens();
+		renderBoard();
+		$(".rparen").click(function (ev) {
+			// Replace inner bounds of parenthesis with Paren
+			var rparen = $.data(ev.target, "term");
+			rparen.actual = true;
+			var lparen = board.filter(function (b) {return b.expr==="("})[0];
+			var terms = board.slice(board.indexOf(lparen) + 1, 
+				board.indexOf(rparen));
+			var newp = new Paren(terms);
+			board.splice(board.indexOf(lparen), terms.length + 2, newp);
+			pmode = false;
+			makeParens();
+			renderBoard();
+		});
+	});
 })
 
 // TODO: Actual onload section
