@@ -97,9 +97,13 @@ var updateScore = function () {
 //Render board function
 var renderBoard = function () {
 	validateBoard()
+	$("#board").html("");
 	// Go through and render the list
-	$("#board").html(board.map(function (c) {return c.render()})
-		.join(" "));
+	board.map(function (b) {
+		$(b.render())
+		.data("term", b)
+		.appendTo($("#board"));
+	})
 	// Add the remove event listener for the trailing number/op
 	$(".trailing").click(function (ev) {
 		var last = board.pop();
@@ -112,10 +116,6 @@ var renderBoard = function () {
 		renderCards();
 	})
 }
-	// Set active/inactive states on top cards
-	// Draws expression area
-		//
-	// Checks/updates score area
 
 
 // Move function
@@ -187,15 +187,15 @@ function Term(expr) {
 	this.actual = true; // Whether just for visualization, no expr val
 	};
 
-	Object.defineProperty(Term.prototype, "expr", {
-		get: function() {
-			if (this.actual){
-				return this._expr;
-			} else {
-				return " "
-			}
+Object.defineProperty(Term.prototype, "expr", {
+	get: function() {
+		if (this.actual){
+			return this._expr;
+		} else {
+			return " "
 		}
-	})
+	}
+})
 
 
 Term.prototype.render = function () {
@@ -224,23 +224,105 @@ Term.prototype.render = function () {
 		+ post;
 };
 
+// Parenthesis subclass of Term
+function Paren(terms) {
+	Term.call(this, terms);
+}
+
+// Expr returns joined inner terms
+Paren.prototype = Object.create(Term.prototype);
+Object.defineProperty(Paren.prototype, "expr", {
+	get:function() {
+		if (this.actual) {
+			return "( " + this._expr
+			.map(function (e) {return e.expr;})
+			.join(" ") + " )";
+		} else {
+			return " ";
+		}
+	}
+})
+
+var makeParens = function () {
+	if (board.length < 3) { // Not enough terms
+		pmode = false;
+		return;
+	} else if (pmode && board.every(function (b) {return b.actual})) {
+		// No nonactual objs, left parenthesis time
+		var numbers = board.filter(function (b) {
+			return !"/*+-()".includes(b.expr) && // Not just an operation
+				!b.expr.includes("("); // Not parenthesis either
+		});
+		for (var i = 0; i < numbers.length; i++) {
+			if (numbers[i].trailing) {
+				// Add to a leading, we know it's at least 3
+				continue;
+			} else {
+				// We know it's not the last, and that the last is not an operator
+				var newp = new Term("(");
+				newp.actual = false; //Other properties set by validation
+				board.splice(board.indexOf(numbers[0]),0,newp);
+			}
+		}
+
+
+	} else if (pmode && board.some(function (b) {return b.actual && b.expr==="("})) {
+		// Actual lparen detected, right parenthesis time
+		// Get index of selected, actual lparen
+		var lparen = board.filter(function (b) {
+			return b.expr==="(" && b.actual;
+		})[0];
+		// Delete all nonactual lparens
+		var todel = board.filter(function (b) {
+			return b.expr==="(" && !b.actual;
+		});
+		for (var i = 0; i < todel.length; i++) {
+			board.splice(board.indexOf(todel[i]),1);
+		}
+		// rparen as appropriate on the rest
+		var subset = board.slice(board.indexOf(lparen), board.length - 1)
+			.filter(function (b) {
+			return !"/*+-()".includes(b.expr) && // Not just an operation
+				!b.expr.includes("("); // Not parenthesis either
+		});
+		for (var i = 0; i < subset.length; i++) {
+			if (i===0) { // No rparen around just one term
+				continue;
+			} else {
+				var newp = new Term(")");
+				newp.actual = false;
+				board.splice(board.indexOf(subset[i]), 0, newp);
+			}
+		}
+	} else {
+		// pmode is off or cancelled, remove all nonactual & nonvalid parens
+		var todel = board.filter(function (b) {return "()".includes(b.expr);});
+		for (var i = 0; i < todel.length; i++) {
+			board.splice(board.indexOf(todel[i]),1);
+		}
+	}
+	
+	// Adding array logic
+	// while less than length of array
+	// If only 1 number until, no parens
+	// If only 2 numbers, only outer parenthesis
+	// If an actual but invalid left paren, 
+	// remove other non-actual left parens,
+	// and only far enough away right parens
+}
 
 // Wire up the op buttons
 $(".btn-op").click(opClick);
 $(".btn-par").click(function (ev) {
+	// If last is an operator, ignore
+	if (!board[board.length -1].valid) {
+		return;
+	}
 	pmode = !pmode;
-	// Procedure: Adds the left parens, index of children = array index
-	// non-actual are not visualized
-	// actual but not valid is an unmatched parenthesis
-	// Right parenthesis shown for selection
-	// paren is valid and actual when both are there
-
-	//if pmode : logic to add in non-actual paren elems
-
+	makeParens();
 	renderBoard();
+
 	//Event Listeners for lparen, rparen
-		//Mark as selected
-		//
 })
 
 // TODO: Actual onload section
