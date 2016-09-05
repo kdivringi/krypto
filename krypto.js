@@ -66,22 +66,45 @@ var validateBoard = function () {
 		board[0].trailing = true;
 		board[0].leading = true;
 		board[0].valid = true;
+		updateScore();
 	} else if (board.length > 1) {
 		board[0].leading = true;
 		last = board[board.length - 1];
 		last.trailing = true;
 		if ("/*+-".includes(last.expr)) 
 			last.valid = false;
-		else
+		else {
 			last.valid = true;
+			updateScore();
+		}
 	}
 	//
+}
+
+var updateScore = function () {
+	var score = eval(board.map(function (c) {return c.expr})
+		.join(" "));
+	$("#total").text(score);
+	if (score===cards[5].num) {
+		// They win!
+		alert("You win!");
+	}
 }
 //Render board function
 var renderBoard = function () {
 	validateBoard()
 	$("#board").html(board.map(function (c) {return c.render()})
 		.join(" "));
+	$(".trailing").click(function (ev) {
+		var last = board.pop();
+		if (last.valid) {
+			cards.filter(function (c) {
+				return c.used && c.num === last.expr
+			})[0].used = false;
+		}
+		renderBoard();
+		renderCards();
+	})
 }
 	// Set active/inactive states on top cards
 	// Draws expression area
@@ -118,6 +141,8 @@ var opClick = function (ev) {
 	if (board.length == 0) {
 		return;
 	} else if (!board[board.length - 1].valid) {
+		return;
+	} else if (cards.slice(0,5).every(function (c) {return c.used;})) {
 		return;
 	} else {	
 		var op = ev.target.text;
