@@ -1,6 +1,10 @@
 var cards;
 
+var start_cards;
+
 var board;
+
+var parens = [];
 
 var pmode = false;
 // Newgame function
@@ -26,9 +30,11 @@ var newGame = function() {
 		cards.push(new TopCard(deck[num]));
 		deck.splice(num, 1);
 	}
+	start_cards = cards.slice();
 	renderCards();
 	// Clear board
 	board = [];
+	parens = [];
 	renderBoard();
 	pmode = false;
 }
@@ -42,19 +48,29 @@ var addToDeck = function(deck, start, end, number) {
 	}
 }
 
-// This should only be called once per new game or re-written
+var reset = function() {
+	board = [];
+	parens = []
+	cards = start_cards.slice();
+	cards.forEach(function (c) {c.used = false;})
+	renderCards();
+	renderBoard();
+}
+
 var renderCards = function () {
 	// Add the first 5 cards to the card area
-	var newtext = cards.slice(0,5).map(function (card) {
-		return card.render();
-	}).join(" ");
-	$("#cards").html(newtext);
+	// var newtext = cards.slice(0,5).map(function (card) {
+		// return card.render();
+	// }).join(" ");
+	$('#cards').html("");
+	cards.slice(0,length - 1).map(function (c) {
+		$(c.render())
+		.data("term", c)
+		.appendTo("#cards");
+	});
 	$(".topCard").click(topCardClick);
 	// Add the last card to the goal area
-	$("#goal").text(String(cards[5].num));
-
-	// Total is zero
-	$("#total").text("0");
+	$("#goal").text(String(cards[cards.length-1].num));
 }
 
 var validateBoard = function () {
@@ -89,7 +105,7 @@ var updateScore = function () {
 		.join(" "));
 	$("#total").text(score);
 	if (cards.slice(0,5).every(function (c) {return c.used}) &&
-		score===cards[5].num) {
+		score===cards[cards.length-1].num) {
 		// They win!
 		alert("You win!");
 	}
@@ -97,6 +113,9 @@ var updateScore = function () {
 
 //Render board function
 var renderBoard = function () {
+	if (parens!=[]) {
+
+	}
 	validateBoard()
 	$("#board").html("");
 	// Go through and render the list
@@ -105,18 +124,118 @@ var renderBoard = function () {
 		.data("term", b)
 		.appendTo($("#board"));
 	})
+	// Add the equals button if necessary
+	if (board.length > 2 && board[board.length - 1].valid===true) {
+		$('<a class="btn btn-default btn-lg btn-eq">=</a>').appendTo($("#board"));
+		// Call back here
+		$('.btn-eq').click(function (ev) {
+			// debugger
+			var newp = new Paren(board);
+			// Find the numbers in the new parenthesis
+			var to_remove = board.filter(function (b) {
+				return !"*/+-".includes(b.expr);
+			});
+			for (var i = 0; i < to_remove.length; i++) {
+				// Find the first used card corresponding to each number
+				if (to_remove[i] instanceof Paren) {
+					var card = cards.filter(function (c) {
+						return c._expr === to_remove[i]._expr;
+					})[0]
+				} else {
+					var card = cards.filter(function (c) {
+						return c.num===Number(to_remove[i].expr) && c.used;
+					})[0];
+				// Remove the card from cards
+				}
+			cards.splice(cards.indexOf(card),1);
+			}
+			// Ugly re-jigger to make it behave like a topcard (should merge classes)
+			newp.used = false;
+			newp.extra_base = " topCard";
+			newp.num = newp.expr;
+			// Add the parenthesis
+			cards.splice(cards.length - 1,0,newp);
+			parens.push(board);
+			board = [];
+			renderCards();
+			renderBoard();
+		});
+	}
+	// Insert the parenthesis sections of the board here
+	$("#parens").html("");
+	for (var i = 0; i < parens.length; i++) {
+		$("<hr><p>").appendTo("#parens");
+		parens[i].map(function (p) {
+			$(p.render())
+			.appendTo($("#parens"));
+		});
+		$('<a class="btn btn-default btn-lg btn-eq">=</a>')
+			.data("p_index", i)
+			.click(function (ev) {
+				// Clicking on parens area equals button removes the parens
+				var i = $.data(ev.target, "p_index");
+				var terms = parens.splice(i,1)[0];
+				removeParens(i, terms);
+				renderCards();
+				renderBoard();
+			})
+			.appendTo($("#parens"));
+		$("</p>").appendTo("#parens");
+	}
+var removeParens = function (ind, terms) {
+	// Check for dependent parens
+	for(var i = ind; i < parens.length; i++) {
+		var to_delete = parens[i].filter(function (p) {
+			if (p instanceof Paren) {
+				return p._expr === terms;
+			} else {
+				return false;
+			}
+		});
+		if (to_delete.length > 0) {
+			var new_terms = parens.splice(i, 1)[0];
+			removeParens(i, new_terms);
+		}
+	}
+	
+	debugger
+	// If no parens, straightforward
+	var to_remove = cards.filter(function (c) {
+		return c._expr === terms;
+	})[0]
+	cards.splice(cards.indexOf(to_remove), 1);
+	for (var i = 0; i < terms.length; i++) {
+		if (terms[i] instanceof Paren) {
+			// Add parens obj with same hacks
+			var newp = new Paren(terms[i]._expr);
+			newp.used = false;
+			newp.extra_base = " topCard";
+			newp.num = newp.expr;
+			cards.splice(cards.length -1, 0, newp);
+		} else if ("-+/*".includes(terms[i].expr)) {
+			continue;
+		} else {
+			// Add term back in
+			var newc = new TopCard(Number(terms[i].expr));
+			cards.splice(cards.length -1, 0, newc)
+		}
+	}
+
+}
 	// Add the remove event listener for the trailing number/op
 	$(".trailing").click(function (ev) {
-		if (pmode) {return;};
 		var last = board.pop();
-		if (last instanceof Paren) {
-			// Explode the parenthesis
-			board = board.concat(last._expr);
-		}
-		else if (last.valid) {
-			cards.filter(function (c) {
-				return c.used && c.num === Number(last.expr)
-			})[0].used = false;
+		if (last.valid) {
+			var term = $.data(ev.target, "term");
+			if (term instanceof Paren) {
+				cards.filter(function (c) {
+					return c._expr===term._expr;
+				})[0].used = false;
+			} else {
+				cards.filter(function (c) {
+					return c.used && c.num === Number(last.expr)
+				})[0].used = false;
+			}
 		}
 		renderBoard();
 		renderCards();
@@ -130,21 +249,18 @@ var topCardClick = function (ev) {
 	// If last term is valid, can't add a card
 	if ((board.length != 0) && (board[board.length - 1].valid))
 		return;
-	var num = Number(ev.target.text);
-	var index = cards.slice(0,5)
-		.map(function (c) {
-			if (c.used)
-				return -1;
-			else
-				return c.num;
-		}).indexOf(num)
-	if (cards[index].used) {
+	var card = $.data(ev.target, 'term')
+	if (card.used) {
 		return;
 	} else {
 		// If last term is invalid or board is [], can add
-		cards[index].used = true;
+		card.used = true;
 		renderCards();
-		board.push(new Term(cards[index].num));
+		if (card instanceof Paren) {
+			board.push(new Paren(card._expr));
+		} else {
+			board.push(new Term(card.num));
+		}
 		renderBoard();
 	}
 }
@@ -237,116 +353,16 @@ Object.defineProperty(Paren.prototype, "expr", {
 	}
 })
 
-var makeParens = function () {
-	if (!pmode) {
-		// pmode is off or cancelled, remove all nonactual & nonvalid parens
-		var todel = board.filter(function (b) {return "()".includes(b.expr);});
-		for (var i = 0; i < todel.length; i++) {
-			board.splice(board.indexOf(todel[i]),1);
-		}
-	}
-	if (board.length < 3) { // Not enough terms
-		pmode = false;
-		return;
-	} else if (pmode && board.every(function (b) {return b.actual && b.expr!="("})) {
-		// No nonactual objs, left parenthesis time
-		var numbers = board.filter(function (b) {
-			return (!"/*+-()".includes(b.expr) && // Not just an operation
-				!b.expr.includes("(")) ||
-				b instanceof Paren; // Not parenthesis either
-		});
-		for (var i = 0; i < numbers.length; i++) {
-			if (numbers[i].trailing) {
-				// Add to a leading, we know it's at least 3
-				continue;
-			} else {
-				// We know it's not the last, and that the last is not an operator
-				var newp = new Term("(");
-				newp.actual = false; //Other properties set by validation
-				newp.extra_base += " lparen";
-				board.splice(board.indexOf(numbers[i]),0,newp);
-			}
-		}
-
-	} else if (pmode && board.some(function (b) {return b.actual && b.expr==="("})) {
-		// Actual lparen detected, right parenthesis time
-		// Get index of selected, actual lparen
-		var lparen = board.filter(function (b) {
-			return b.expr==="(" && b.actual;
-		})[0];
-		// Delete all nonactual lparens
-		var todel = board.filter(function (b) {
-			return b.expr==="(" && !b.actual;
-		});
-		for (var i = 0; i < todel.length; i++) {
-			board.splice(board.indexOf(todel[i]),1);
-		}
-		// rparen as appropriate on the rest
-		var subset = board.slice(board.indexOf(lparen), board.length)
-			.filter(function (b) {
-			return (!"/*+-()".includes(b.expr) && // Not just an operation
-				!b.expr.includes("(")) ||
-				b instanceof Paren; // Not parenthesis either
-		});
-		for (var i = 0; i < subset.length; i++) {
-			if (i===0) { // No rparen around just one term
-				continue;
-			} else {
-				var newp = new Term(")");
-				newp.actual = false;
-				newp.extra_base += " rparen";
-				board.splice(board.indexOf(subset[i]) + 1, 0, newp);
-			}
-		}
-	}
-	
-	// Adding array logic
-	// while less than length of array
-	// If only 1 number until, no parens
-	// If only 2 numbers, only outer parenthesis
-	// If an actual but invalid left paren, 
-	// remove other non-actual left parens,
-	// and only far enough away right parens
-}
-
 $(function () {
 	newGame();
 	// Wire up the op buttons
 	$(".btn-op").click(opClick);
-	$(".btn-par").click(function (ev) {
-		if (pmode) {
-			pmode = false;
-			makeParens();
-			renderBoard();
-			return;
-		// If last is an operator, ignore
-		} else if (!board[board.length -1].valid) {
-			return;
-		}
-		pmode = true;
-		makeParens();
-		renderBoard();
+	
+	$("#goal").text(String(cards[5].num));
 
-		//Event Listeners for lparen, rparen
-		$(".lparen").click(function (ev) {
-			$.data(ev.target, "term").actual = true;
-			makeParens();
-			renderBoard();
-			$(".rparen").click(function (ev) {
-				// Replace inner bounds of parenthesis with Paren
-				var rparen = $.data(ev.target, "term");
-				rparen.actual = true;
-				var lparen = board.filter(function (b) {return b.expr==="("})[0];
-				var terms = board.slice(board.indexOf(lparen) + 1, 
-					board.indexOf(rparen));
-				var newp = new Paren(terms);
-				board.splice(board.indexOf(lparen), terms.length + 2, newp);
-				pmode = false;
-				makeParens();
-				renderBoard();
-			});
-		});
-	})
+	// Total is zero
+	$("#total").text("0");
+
 });
 // TODO: Actual onload section
 // TODO: Error messages instead of alert

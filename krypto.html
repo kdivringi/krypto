@@ -27,6 +27,8 @@
       <li>Whole and non-negative numbers only</li>
       </ul>
       <a class="btn btn-default" href="#" onclick="newGame()">New Game</a>
+      <a class="btn btn-default" href="#" onclick="reset()">Reset</a>
+
       </p>
     </div></div>
     <div class="row">
@@ -46,7 +48,6 @@
            <a class="btn btn-default btn-lg btn-op">-</a>
            <a class="btn btn-default btn-lg btn-op">*</a>
            <a class="btn btn-default btn-lg btn-op">/</a>
-           <a class="btn btn-default btn-lg btn-par">()</a>
            </span>
         </p>
         <hr>
@@ -64,12 +65,13 @@
         <a class="btn btn-default btn-lg">/</a>
         </span>
       </p>
+      <div id="parens"></div>
       <hr>
       </div>
    </div>
    <div class="row">
       <div class="col-lg-6 col-md-offset-3">
-      <p class="text-center">Total: <span class="badge" id="total">2</span>, Target: <a class="btn btn-default btn-lg" id="goal">10</a></span>
+      <p class="text-center">Total: <span class="badge" id="total">2</span>, Target: <a class="btn btn-default btn-lg" id="goal">10</a></p>
       </div>
     </div>
   </div>
