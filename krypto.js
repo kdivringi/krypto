@@ -104,8 +104,8 @@ var updateScore = function () {
 	var score = eval(board.map(function (c) {return c.value()})
 		.join(" "));
 	$("#total").text(score);
-	if (cards.slice(0,5).every(function (c) {return c.used}) &&
-		score===cards[cards.length-1].num) {
+	if (cards.slice(0,cards.length-1).every(function (c) {return c.used}) &&
+		Number(score)===cards[cards.length-1].num) {
 		// They win!
 		alert("You win!");
 	}
@@ -169,7 +169,8 @@ var renderBoard = function () {
 			$(p.render())
 			.appendTo($("#parens"));
 		});
-		$('<a class="btn btn-default btn-lg btn-eq">=</a>')
+		var score = eval(parens[i].map(function (p) {return p.value()}).join(" "))
+		$('<a class="btn btn-default btn-lg btn-eq">=' + score + '</a>')
 			.data("p_index", i)
 			.click(function (ev) {
 				// Clicking on parens area equals button removes the parens
