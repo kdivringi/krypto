@@ -4,15 +4,23 @@ import './App.css';
 import Cards from './Cards.js';
 import Board from './Board.js';
 import Toolbar from './Toolbar.js';
+import Ops from './Ops.js';
+import Score from './Score.js';
+import Eqs from './Eqs.js';
 
 class App extends Component {
 
   constructor() {
     super();
     this.newGame = this.newGame.bind(this);
+    this.reset = this.reset.bind(this);
     this.canAddNumber = this.canAddNumber.bind(this);
     this.addCard = this.addCard.bind(this);
-    this.reset = this.reset.bind(this);
+    this.removeCard = this.removeCard.bind(this);
+    this.addOp = this.addOp.bind(this);
+    this.calculateScore = this.calculateScore.bind(this);
+    this.addEq = this.addEq.bind(this);
+    this.removeEq = this.removeEq.bind(this);
 
     this.state = {
       orig_cards: [],
@@ -79,9 +87,9 @@ class App extends Component {
     if (this.state.board.length===0) {
       return true;
     } else if ("-+/*".includes(this.state.board[this.state.board.length -1].value)) {
-      return false;
-    } else {
       return true;
+    } else {
+      return false;
     }
   }
 
@@ -93,11 +101,83 @@ class App extends Component {
     const cards = [...this.state.cards];
     const board = [...this.state.board];
     let ind = card
-    let moved = cards.splice(ind,1)
+    let moved = cards.splice(ind, 1);
     board.push(moved[0]);
+    const score = this.calculateScore(board);
     this.setState({
-      'cards':cards,
-      'board':board
+      cards: cards,
+      board: board,
+      score: score
+    });
+  }
+
+  removeCard(card) {
+    // Also works on ops on the board
+    if (card !== this.state.board.length - 1) {
+      return
+    }
+    const cards = [...this.state.cards];
+    const board = [...this.state.board];
+    let moved = board.splice(card, 1);
+    const new_state = {}
+    if (!"-+/*".includes(moved[0].value)) {
+      cards.push(moved[0]);
+    } else {
+      const score = this.calculateScore(board);
+      new_state['score'] = score
+    }
+    new_state['cards'] = cards;
+    new_state['board'] = board;
+    this.setState(new_state);
+  }
+
+  addOp(op) {
+    if (this.canAddNumber()){
+      return
+    }
+    const board = [...this.state.board];
+    board.push({'value': op});
+    this.setState({
+      board: board
+    });
+  }
+
+  calculateScore(board) {
+      const score = eval(board.map((e) => {return e.value}).join(""));
+      return score;
+  }
+
+  addEq() {
+    const eqs = [...this.state.eqs];
+    const cards = [...this.state.cards];
+    const new_eq = {
+      value: '(' + this.state.board.map((e) => {return e.value}).join("") + ')',
+      terms: [...this.state.board]
+    }
+    eqs.push(new_eq);
+    cards.push(new_eq);
+    this.setState({
+      board: [],
+      cards: cards,
+      eqs: eqs
+    })
+  }
+
+  removeEq(eq) {
+    // Going to be a bit stupid and just remove the last one
+    if (eq !== (this.state.eqs.length - 1)) {
+      return
+    }
+
+    const eqs = [...this.state.eqs];
+    const cards = [...this.state.cards];
+    const last = eqs.pop(0);
+    const ind = cards.indexOf(last);
+    cards.splice(ind, 1);
+    const new_terms = last.terms.filter((e) => {return !"-+/*".includes(e.value)});
+    this.setState({
+      eqs: eqs,
+      cards: cards.concat(new_terms)
     });
   }
 
@@ -111,13 +191,16 @@ class App extends Component {
         <li>Whole and non-negative numbers only</li>
         </ul>
         <Toolbar newGame={this.newGame} reset={this.reset}/>
+        <Ops addOp={this.addOp}/>
         <Cards cards={this.state.cards}
                addCard={this.addCard}/>
-        <Board board={this.state.board}/>
-      {/*
-        <Ops/>
-        <Eqs/>
-        <Score/>*/}
+        <Board board={this.state.board}
+              removeCard={this.removeCard}
+              canAddNumber={this.canAddNumber}
+              addEq={this.addEq}/>
+        <Eqs eqs={this.state.eqs}
+              removeEq={this.removeEq}/>
+        <Score score={this.state.score} target={this.state.target}/>
       </div>
     );
   }

@@ -6,9 +6,14 @@ class Board extends React.Component {
 		return(
 			<p>
 				{this.props.board.map((c) => {
-					return (<a key={this.props.board.indexOf(c)}>{c.value}</a> )
+					const key = this.props.board.indexOf(c);
+					return (<a 
+						key={key}
+						onClick={() => this.props.removeCard(key)}
+						>{c.value}</a> )
 				}
 				)}
+			{!this.props.canAddNumber() && <a onClick={() => this.props.addEq()}>=</a>}
 			</p>
 			)
 	}
