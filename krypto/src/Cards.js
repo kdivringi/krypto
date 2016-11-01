@@ -4,16 +4,17 @@ class Cards extends React.Component {
 
 	render () {
 		return(
-			<p>
+			<div><ul className="hlist">
 				{this.props.cards.map((c) => {
 					const key = this.props.cards.indexOf(c);
-					return (<a 
+					return (<li
+						className="card" 
 						key={key}
 						onClick={() => this.props.addCard(key)}
-						>{c.value}</a> )
+						>{c.value}</li> )
 				}
 				)}
-			</p>
+			</ul></div>
 			)
 	}
 }

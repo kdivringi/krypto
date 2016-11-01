@@ -4,17 +4,18 @@ class Board extends React.Component {
 
 	render () {
 		return(
-			<p>
+			<div><ul className="hlist">
 				{this.props.board.map((c) => {
 					const key = this.props.board.indexOf(c);
-					return (<a 
+					return (<li
+						className="card" 
 						key={key}
 						onClick={() => this.props.removeCard(key)}
-						>{c.value}</a> )
+						>{c.value}</li> )
 				}
 				)}
-			{!this.props.canAddNumber() && <a onClick={() => this.props.addEq()}>=</a>}
-			</p>
+			{!this.props.canAddNumber() && <li className="card" onClick={() => this.props.addEq()}>=</li>}
+			</ul></div>
 			)
 	}
 }

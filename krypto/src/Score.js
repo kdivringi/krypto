@@ -4,8 +4,9 @@ class Score extends React.Component {
 
 	render () {
 		return(
-			<p>Target: {this.props.target} | Score: {this.props.score}
-			</p>
+			<div><ul className="hlist">
+			<li>Target: {this.props.target} | Score: {this.props.score}</li>
+			</ul></div>
 			)
 	}
 }

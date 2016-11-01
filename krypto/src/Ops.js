@@ -4,12 +4,12 @@ class Ops extends React.Component {
 
 	render () {
 		return(
-			<p>
-			<span onClick={() => this.props.addOp("+")}> + </span> 
-			<span onClick={() => this.props.addOp("-")}> - </span> 
-			<span onClick={() => this.props.addOp("*")}> * </span> 
-			<span onClick={() => this.props.addOp("/")}> / </span>
-			</p>
+			<ul className="Ops">
+			<li className="btn" onClick={() => this.props.addOp("+")}> + </li> 
+			<li className="btn" onClick={() => this.props.addOp("-")}> - </li> 
+			<li className="btn" onClick={() => this.props.addOp("*")}> * </li> 
+			<li className="btn" onClick={() => this.props.addOp("/")}> / </li>
+			</ul>
 			)
 	}
 }

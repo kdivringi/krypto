@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import Cards from './Cards.js';
 import Board from './Board.js';
@@ -184,9 +183,9 @@ class App extends Component {
   render() {
     return (
       <div className="App container-fluid">
-        <h2>Krypto!</h2>
-        <p className="lead">Use the cards and basic arithmetic to reach the target number below.</p>
-        <ul>
+        <h2 className="Title">Krypto!</h2>
+        <p className="Lead">Use the cards and basic arithmetic to reach the target number below.</p>
+        <ul className="Instructions">
         <li>You must use all of the cards exactly once</li>
         <li>Whole and non-negative numbers only</li>
         </ul>
