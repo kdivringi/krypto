@@ -40,6 +40,7 @@ class App extends Component {
         }
       }
     }
+
     let deck = [];
     // 3 of 1-6
     addToDeck(deck, 1, 6, 3);
@@ -56,7 +57,7 @@ class App extends Component {
     for (let i = 0; i < 5; i++) {
       let num = Math.floor(Math.random()*deck.length);
       cards.push({
-        value:String(num)
+        value:String(deck[num])
       });
       deck.splice(num, 1);
       }
@@ -183,12 +184,13 @@ class App extends Component {
   render() {
     return (
       <div className="App container-fluid">
-        <h2 className="Title">Krypto!</h2>
+        <h1 className="Title">Krypto!</h1>
         <p className="Lead">Use the cards and basic arithmetic to reach the target number below.</p>
-        <ul className="Instructions">
-        <li>You must use all of the cards exactly once</li>
-        <li>Whole and non-negative numbers only</li>
-        </ul>
+        <p className="Instructions">
+        You must use all of the cards exactly once
+        
+        Whole and non-negative numbers only
+        </p>
         <Toolbar newGame={this.newGame} reset={this.reset}/>
         <Ops addOp={this.addOp}/>
         <Cards cards={this.state.cards}

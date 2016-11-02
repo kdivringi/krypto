@@ -6,9 +6,9 @@ class Ops extends React.Component {
 		return(
 			<ul className="Ops">
 			<li className="btn" onClick={() => this.props.addOp("+")}> + </li> 
-			<li className="btn" onClick={() => this.props.addOp("-")}> - </li> 
-			<li className="btn" onClick={() => this.props.addOp("*")}> * </li> 
-			<li className="btn" onClick={() => this.props.addOp("/")}> / </li>
+			<li className="btn" onClick={() => this.props.addOp("-")}> &minus; </li> 
+			<li className="btn" onClick={() => this.props.addOp("*")}> &times; </li> 
+			<li className="btn" onClick={() => this.props.addOp("/")}> &divide; </li>
 			</ul>
 			)
 	}

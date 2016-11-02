@@ -48,19 +48,21 @@ table {
 }
 
 
+
 .App {
   text-align: center;
 }
 
 .Title {
+  font-family: 'Bungee Outline', cursive;
   font-style: italic;
-  font-size: 3em;
+  font-size: 5em;
   margin-bottom: 20px;
 }
 
-ul.Instructions {
+.Instructions {
   display: inline-block;
-  margin: 20px;
+  margin-bottom: 40px;
 }
 
 div.Toolbar {
@@ -68,6 +70,8 @@ div.Toolbar {
 }
 
 .Toolbar a {
+  font-family: 'Bungee', cursive;
+  font-size: 1.2em;
   border: 2px solid black;
   border-radius: 8px;
   padding: 10px;
@@ -81,6 +85,11 @@ div.Toolbar {
 
 ul.Ops {
   display: inline-block;
+}
+
+li {
+    font-family: 'Bungee', cursive;
+    font-size: 1.5em;
 }
 
 li.btn {
