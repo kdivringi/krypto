@@ -4,7 +4,8 @@ class Eqs extends React.Component {
 
 	render () {
 		return(
-			<div><ul className="hlist">
+			<div className="Clearfix">
+			<ul className="vlist">
 				{this.props.eqs.map((c) => {
 					const key = this.props.eqs.indexOf(c);
 					const last = (this.props.eqs.length - 1) === key;
@@ -18,7 +19,8 @@ class Eqs extends React.Component {
 					}
 				}
 				)}
-			</ul></div>
+			</ul>
+			</div>
 			)
 	}
 }

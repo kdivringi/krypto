@@ -183,7 +183,7 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App container-fluid">
+      <div className="App">
         <h1 className="Title">Krypto!</h1>
         <p className="Lead">Use the cards and basic arithmetic to reach the target number below.</p>
         <p className="Instructions">

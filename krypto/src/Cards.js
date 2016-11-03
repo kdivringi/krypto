@@ -4,7 +4,8 @@ class Cards extends React.Component {
 
 	render () {
 		return(
-			<div><ul className="hlist">
+			<div className="Clearfix">
+			<ul className="hlist">
 				{this.props.cards.map((c) => {
 					const key = this.props.cards.indexOf(c);
 					return (<li
@@ -14,7 +15,8 @@ class Cards extends React.Component {
 						>{c.value}</li> )
 				}
 				)}
-			</ul></div>
+			</ul>
+			</div>
 			)
 	}
 }

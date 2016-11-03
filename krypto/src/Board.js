@@ -4,7 +4,8 @@ class Board extends React.Component {
 
 	render () {
 		return(
-			<div><ul className="hlist">
+			<div className="Clearfix">
+			<ul className="hlist">
 				{this.props.board.map((c) => {
 					const key = this.props.board.indexOf(c);
 					return (<li
@@ -15,7 +16,8 @@ class Board extends React.Component {
 				}
 				)}
 			{!this.props.canAddNumber() && <li className="card" onClick={() => this.props.addEq()}>=</li>}
-			</ul></div>
+			</ul>
+			</div>
 			)
 	}
 }
