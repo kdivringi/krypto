@@ -6,6 +6,7 @@ class Cards extends React.Component {
 		return(
 			<div className="Clearfix">
 			<ul className="hlist">
+			<li className="card-first">Cards:</li>
 				{this.props.cards.map((c) => {
 					const key = this.props.cards.indexOf(c);
 					return (<li

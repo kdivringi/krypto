@@ -8,14 +8,15 @@ class Eqs extends React.Component {
 			<ul className="vlist">
 				{this.props.eqs.map((c) => {
 					const key = this.props.eqs.indexOf(c);
-					const last = (this.props.eqs.length - 1) === key;
+					const last = 0 === key;
 					if (last) {
 						return (<li key={key}
 									onClick={() => this.props.removeEq(key)}
-									className="card">{c.value} = (Remove)
+									className="eqn eqn-active">{c.value} 
+									<div className="small-detail"> (Remove)</div>
 							</li> )
 					} else {
-						return (<li key={key} className="card">{c.value}</li> )
+						return (<li key={key} className="eqn">{c.value}</li> )
 					}
 				}
 				)}

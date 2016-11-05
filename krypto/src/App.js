@@ -148,30 +148,34 @@ class App extends Component {
   }
 
   addEq() {
+    if (this.state.board.length < 3) {
+      return;
+    }
     const eqs = [...this.state.eqs];
     const cards = [...this.state.cards];
     const new_eq = {
       value: '(' + this.state.board.map((e) => {return e.value}).join("") + ')',
       terms: [...this.state.board]
     }
-    eqs.push(new_eq);
+    eqs.unshift(new_eq);
     cards.push(new_eq);
     this.setState({
       board: [],
       cards: cards,
-      eqs: eqs
+      eqs: eqs,
+      score: 0
     })
   }
 
   removeEq(eq) {
     // Going to be a bit stupid and just remove the last one
-    if (eq !== (this.state.eqs.length - 1)) {
+    if (eq !== 0) {
       return
     }
 
     const eqs = [...this.state.eqs];
     const cards = [...this.state.cards];
-    const last = eqs.pop(0);
+    const last = eqs.shift(0);
     const ind = cards.indexOf(last);
     cards.splice(ind, 1);
     const new_terms = last.terms.filter((e) => {return !"-+/*".includes(e.value)});
@@ -186,11 +190,8 @@ class App extends Component {
       <div className="App">
         <h1 className="Title">Krypto!</h1>
         <p className="Lead">Use the cards and basic arithmetic to reach the target number below.</p>
-        <p className="Instructions">
-        You must use all of the cards exactly once
-        
-        Whole and non-negative numbers only
-        </p>
+        <p>You must use all of the cards exactly once</p>
+        <p className="Instructions">Whole and non-negative numbers only</p>
         <Toolbar newGame={this.newGame} reset={this.reset}/>
         <Ops addOp={this.addOp}/>
         <Cards cards={this.state.cards}
@@ -198,7 +199,8 @@ class App extends Component {
         <Board board={this.state.board}
               removeCard={this.removeCard}
               canAddNumber={this.canAddNumber}
-              addEq={this.addEq}/>
+              addEq={this.addEq}
+              eqs={this.state.eqs}/>
         <Eqs eqs={this.state.eqs}
               removeEq={this.removeEq}/>
         <Score score={this.state.score} target={this.state.target}/>

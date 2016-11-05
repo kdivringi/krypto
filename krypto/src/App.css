@@ -62,7 +62,7 @@ table {
 
 .App {
   margin: 0 auto;
-  width: 960px;
+  width: 600px;
   text-align: center;
   vertical-align: top;
 }
@@ -76,10 +76,12 @@ table {
   font-style: italic;
   font-size: 5em;
   margin-bottom: 20px;
+background: -webkit-linear-gradient(left, rgba(241,231,103,1) 0%, rgba(254,182,69,1) 100%);
+background: -o-linear-gradient(left, rgba(241,231,103,1) 0%, rgba(254,182,69,1) 100%);
+background: linear-gradient(to right, rgba(241,231,103,1) 0%, rgba(254,182,69,1) 100%);
 }
 
 .Instructions {
-  display: inline-block;
   margin-bottom: 40px;
 }
 
@@ -143,6 +145,7 @@ ul.hlist {
 
 ul.vlist {
   display: inline-block;
+  text-align: center;
 }
 
 .vlist li {
@@ -152,32 +155,43 @@ ul.vlist {
 li.card {
   float: left;
   padding: 5px;
+  margin: 5px;
+  border: 1px dashed grey;
 }
 
-li.card:hover {
+li.card-first {
+  float: left;
+  padding: 5px;
+  margin: 5px;
+}
+
+li.card:hover, li.eqn-active:hover {
   background-color: skyblue;
   cursor: pointer;
 }
 
-
-a.
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+li.eqn {
+  padding: 5px;
+  margin: 5px;
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+li.eqn-active {
+  border: 1px dashed grey;
 }
 
-.App-intro {
-  font-size: large;
+.small-detail {
+  font-size: 0.5em;
+  vertical-align: center;
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.board-placeholder {
+  background-color: whitesmoke;
+  font-style: italic;
+  font-size: 0.8em;
+  padding: 10px;
+  margin: 20px 0px;
+  -webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+  -moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+  box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+
 }
