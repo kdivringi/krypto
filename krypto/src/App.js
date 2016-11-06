@@ -203,9 +203,20 @@ class App extends Component {
               eqs={this.state.eqs}
               target={this.state.target}/>
         <Eqs eqs={this.state.eqs}
-              removeEq={this.removeEq}/>
+              removeEq={this.removeEq}
+              board={this.state.board}/>
         <Score score={this.state.score} target={this.state.target}
-              newGame={this.newGame} reset={this.reset}/>
+              newGame={this.newGame} reset={this.reset}
+              cards={this.state.cards}/>
+        <footer>
+        <p>
+          Read more about 
+          <a href="https://en.wikipedia.org/wiki/Krypto_(game)">
+          Krypto</a>
+        </p>
+        <p>See the code for this here</p>
+        <p>Read about this program on my blog</p>
+        </footer>
       </div>
     );
   }

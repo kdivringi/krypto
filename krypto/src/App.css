@@ -198,8 +198,12 @@ li.eqn-active {
 
 .win {
   position: absolute;
-  left: 30%;
-  top: 20%;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  top: 15%;
+  width: 600px;
   background: red;
   animation-name: celebrate;
   animation-timing-function: ease-in-out;
@@ -241,4 +245,12 @@ li.eqn-active {
   width: 100%;
   height:100%;
   background-color: rgba(1,1,1, 0.75);
+}
+
+footer {
+  margin-top: 40px;
+}
+
+footer p {
+  padding: 5px;
 }

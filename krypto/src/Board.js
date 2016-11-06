@@ -32,7 +32,9 @@ class Board extends React.Component {
 						>{c.value}</li> )
 				}
 				)}
-			{!this.props.canAddNumber() && <li className="card" onClick={() => this.props.addEq()}>=</li>}
+			{!this.props.canAddNumber() && 
+				this.props.board.length > 1 && 
+				<li className="card" onClick={() => this.props.addEq()}>=</li>}
 			</ul>
 			</div>
 			)

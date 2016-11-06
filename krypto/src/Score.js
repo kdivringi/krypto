@@ -5,9 +5,11 @@ import Toolbar from './Toolbar.js';
 class Score extends React.Component {
 
 	renderWin () {
-		if (this.props.target !== this.props.score) {
+		if (this.props.target !== this.props.score ||
+			this.props.cards.length !== 0) {
 			return
 		}
+
 		return(
 			<div className="win-back">
 			<div className="win"> 
