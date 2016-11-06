@@ -200,10 +200,12 @@ class App extends Component {
               removeCard={this.removeCard}
               canAddNumber={this.canAddNumber}
               addEq={this.addEq}
-              eqs={this.state.eqs}/>
+              eqs={this.state.eqs}
+              target={this.state.target}/>
         <Eqs eqs={this.state.eqs}
               removeEq={this.removeEq}/>
-        <Score score={this.state.score} target={this.state.target}/>
+        <Score score={this.state.score} target={this.state.target}
+              newGame={this.newGame} reset={this.reset}/>
       </div>
     );
   }

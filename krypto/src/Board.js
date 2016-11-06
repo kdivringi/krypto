@@ -3,11 +3,19 @@ import React from 'react';
 class Board extends React.Component {
 
 	renderPlaceHolder(board) {
-		if (board.length===0 && this.props.eqs.length===0) {
+		if (this.props.target===-1) {
+			return <p className="board-placeholder">
+			(Click New Game to pick the cards and target to get started!)
+			</p> 
+		} else if (board.length===0 && this.props.eqs.length===0) {
 			return <p className="board-placeholder">
 			(Click the number cards above to get started)
 			</p>
-		}
+		} else if (board.length===1 && this.props.eqs.length===0) {
+			return <p className="board-placeholder">
+			(Now add an operation (+ - &times; &divide;)
+			</p>
+		} 
 	}
 
 	render () {
