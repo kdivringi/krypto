@@ -61,7 +61,7 @@ class App extends Component {
       });
       deck.splice(num, 1);
       }
-    const target = Math.floor(Math.random()*deck.length);
+    const target = deck[Math.floor(Math.random()*deck.length)];
 
     this.setState({
       orig_cards: [...cards],
