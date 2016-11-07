@@ -214,8 +214,8 @@ class App extends Component {
           <a href="https://en.wikipedia.org/wiki/Krypto_(game)">
           Krypto</a>
         </p>
-        <p>See the code for this here</p>
-        <p>Read about this program on my blog</p>
+        <p>See the code for this <a href="https://github.com/kdivringi/krypto">here</a></p>
+        <p>Read about this on my <a href="http://kdivringi.github.io/new-version-of-krypto-in-react.html#new-version-of-krypto-in-react">blog</a></p>
         </footer>
       </div>
     );
