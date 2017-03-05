@@ -13,7 +13,7 @@ class Cards extends React.Component {
 						className="card" 
 						key={key}
 						onClick={() => this.props.addCard(key)}
-						>{c.value}</li> )
+						>{c.display()}</li> )
 				}
 				)}
 			</ul>

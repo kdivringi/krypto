@@ -29,7 +29,7 @@ class Board extends React.Component {
 						className="card" 
 						key={key}
 						onClick={() => this.props.removeCard(key)}
-						>{c.value}</li> )
+						>{c.display()}</li> )
 				}
 				)}
 			{!this.props.canAddNumber() && 

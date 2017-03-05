@@ -6,6 +6,7 @@ import Toolbar from './Toolbar.js';
 import Ops from './Ops.js';
 import Score from './Score.js';
 import Eqs from './Eqs.js';
+import {Card, Op, Paren} from './cardUtils';
 
 class App extends Component {
 
@@ -56,9 +57,7 @@ class App extends Component {
     const cards = [];
     for (let i = 0; i < 5; i++) {
       let num = Math.floor(Math.random()*deck.length);
-      cards.push({
-        value:String(deck[num])
-      });
+      cards.push(new Card(deck[num]));
       deck.splice(num, 1);
       }
     const target = deck[Math.floor(Math.random()*deck.length)];
@@ -86,7 +85,7 @@ class App extends Component {
     // True if an operation is the last thing on the board or if it's empty
     if (this.state.board.length===0) {
       return true;
-    } else if ("-+/*".includes(this.state.board[this.state.board.length -1].value)) {
+    } else if (this.state.board[this.state.board.length -1] instanceof Op) {
       return true;
     } else {
       return false;
@@ -120,7 +119,7 @@ class App extends Component {
     const board = [...this.state.board];
     let moved = board.splice(card, 1);
     const new_state = {}
-    if (!"-+/*".includes(moved[0].value)) {
+    if (!(moved[0] instanceof Op)) {
       cards.push(moved[0]);
     } else {
       const score = this.calculateScore(board);
@@ -136,14 +135,15 @@ class App extends Component {
       return
     }
     const board = [...this.state.board];
-    board.push({'value': op});
+    board.push(new Op(op));
     this.setState({
       board: board
     });
   }
 
   calculateScore(board) {
-      const score = eval(board.map((e) => {return e.value}).join(""));
+      const board_paren = new Paren(board);
+      const score = board_paren.calculate();
       return score;
   }
 
@@ -153,10 +153,7 @@ class App extends Component {
     }
     const eqs = [...this.state.eqs];
     const cards = [...this.state.cards];
-    const new_eq = {
-      value: '(' + this.state.board.map((e) => {return e.value}).join("") + ')',
-      terms: [...this.state.board]
-    }
+    const new_eq = new Paren([...this.state.board]);
     eqs.unshift(new_eq);
     cards.push(new_eq);
     this.setState({
@@ -172,13 +169,12 @@ class App extends Component {
     if (eq !== 0) {
       return
     }
-
     const eqs = [...this.state.eqs];
     const cards = [...this.state.cards];
     const last = eqs.shift(0);
     const ind = cards.indexOf(last);
     cards.splice(ind, 1);
-    const new_terms = last.terms.filter((e) => {return !"-+/*".includes(e.value)});
+    const new_terms = last.value.filter((e) => {return !(e instanceof Op)});
     this.setState({
       eqs: eqs,
       cards: cards.concat(new_terms)

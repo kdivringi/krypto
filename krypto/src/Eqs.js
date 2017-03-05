@@ -23,11 +23,11 @@ class Eqs extends React.Component {
 					if (last) {
 						return (<li key={key}
 									onClick={() => this.props.removeEq(key)}
-									className="eqn eqn-active">{c.value} 
+									className="eqn eqn-active">{c.display()} 
 									<div className="small-detail"> (Remove)</div>
 							</li> )
 					} else {
-						return (<li key={key} className="eqn">{c.value}</li> )
+						return (<li key={key} className="eqn">{c.display()}</li> )
 					}
 				}
 				)}
