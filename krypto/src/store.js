@@ -165,9 +165,33 @@ export function rootReducer(state = defaultState, action) {
 		    new_state.board = [...new_state.board, new Op(action.op)];
 			return new_state
 		case "ADD_EQ":
-			return state
+		    if (state.board.length < 3) {
+		      return state
+		    }
+			new_state = {...state}
+			let new_eq = new Paren([...new_state.board]);
+			new_state.eqs = [new_eq, ...new_state.eqs];
+			new_state.cards = [...new_state.cards, new_eq];
+			new_state.board = []
+			new_state.score = 0
+			return new_state
 		case "REMOVE_EQ":
-			return state
+			if (state.eqs.length === 0) {
+				return state
+			}
+			new_state = {...state}
+			let eq_removed = new_state.eqs[0]
+			new_state.eqs = new_state.eqs.slice(1)
+			if (new_state.board.includes(eq_removed)) {
+				new_state.cards = [...new_state.cards,
+									...new_state.board.filter((e) => e!==eq_removed &&
+										!(e instanceof Op))]
+				new_state.board = []
+			}
+			new_state.cards = [...new_state.cards.filter((e) => e!==eq_removed), 
+							...eq_removed.value.filter((e) => !(e instanceof Op))]
+			new_state.score = calculateScore(new_state.board)
+			return new_state
 		default:
 			return state
 	}
