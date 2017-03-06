@@ -140,8 +140,9 @@ export function rootReducer(state = defaultState, action) {
 				return state
 			}
 			new_state = {...state}
-		    let moved = new_state.cards.splice(action.index, 1);
-	        new_state.board.push(moved[0]);
+		    let moved = new_state.cards[action.index]//.splice(action.index, 1);
+		    new_state.cards = new_state.cards.filter((e, i) => i !== action.index);
+	        new_state.board = [...new_state.board, moved];
 		    new_state.score = calculateScore(new_state.board);
 		    return new_state
 		case "REMOVE_CARD":
@@ -149,15 +150,20 @@ export function rootReducer(state = defaultState, action) {
 		      return state
 		    }
 			new_state = {...state};
-		    let removed = new_state.board.splice(action.index, 1);
-		    if (!(removed[0] instanceof Op)) {
-		      new_state.cards.push(removed[0]);
-		    } else {
-		      new_state.score = calculateScore(new_state.board);
-		    }
+		    let removed = new_state.board[action.index];//.splice(action.index, 1);
+		    new_state.board = new_state.board.filter((e, i) => i !== action.index)
+		    if (!(removed instanceof Op)) {
+		      new_state.cards = [...new_state.cards, removed];
+			}
+	      	new_state.score = calculateScore(new_state.board);
 			return new_state
 		case "ADD_OP":
-			return state
+		    if (canAddNumber(state)){
+		      return state
+		    }
+		    new_state = {...state};
+		    new_state.board = [...new_state.board, new Op(action.op)];
+			return new_state
 		case "ADD_EQ":
 			return state
 		case "REMOVE_EQ":

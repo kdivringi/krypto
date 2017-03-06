@@ -15,7 +15,7 @@ const test_state = {
 	eqs: [p2, p1],
 	board: [p2],
 	target: 25,
-	score: 37
+	score: 45
 
 }
 
@@ -57,9 +57,19 @@ it("Remove card normally (empty board", () => {
 	expect(out_state3.board.length).toBe(0);
 	expect(out_state3.cards.length).toBe(5);
 })
-// Test add opp (valid & invalid)
 
+// Test add opp (valid & invalid)
+it("Add Op Normally to valid board", () => {
+	const out_state1 = rootReducer(test_state, {type:"ADD_OP", op:"-"});
+	const out_state2 = rootReducer(out_state1, {type:"ADD_CARD", index:1});
+	expect(out_state1.score).toEqual(test_state.score);
+	expect(out_state2.score).toBe(42);
+	expect(out_state1.board.length).toBe(2);
+	expect(out_state2.board.length).toBe(3);
+	// expect(out_state1.cards.length).toBe(2);
+	// expect(out_state2.cards.length).toBe(1);
+})
 // Test add eq (valid & invalid empty or incomplete)
 
-// Test remove eq
+// Test remove eq (remove from board if present in the board)
 
