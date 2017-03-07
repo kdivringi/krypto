@@ -1,4 +1,5 @@
 import React from 'react';
+import { Op } from './cardUtils';
 
 class Board extends React.Component {
 
@@ -18,6 +19,16 @@ class Board extends React.Component {
 		} 
 	}
 
+	canAddNumber() {
+		if (this.props.board.length === 0) {
+			return true
+		} else if (this.props.board[this.props.board.length - 1] instanceof Op) {
+			return true
+		} else {
+			return false
+		}
+	}
+
 	render () {
 		return(
 			<div className="Clearfix">
@@ -32,7 +43,7 @@ class Board extends React.Component {
 						>{c.display()}</li> )
 				}
 				)}
-			{!this.props.canAddNumber() && 
+			{!this.canAddNumber() && 
 				this.props.board.length > 1 && 
 				<li className="card" onClick={() => this.props.addEq()}>=</li>}
 			</ul>

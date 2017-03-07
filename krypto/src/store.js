@@ -11,63 +11,6 @@ const defaultState = {
       score: 0
 }
 
-// Actions
-
-function newGame() {
-	return {
-		type: "NEW_GAME"
-	}
-}
-
-function reset() {
-	return {
-		type: "RESET"
-	}
-}
-
-function addCard(index) {
-	return {
-		type:"ADD_CARD",
-		index
-	}
-}
-
-function removeCard(index) {
-	return {
-		type:"REMOVE_CARD",
-		index
-	}
-}
-
-function addOp(op) {
-	return {
-		type:"ADD_OP",
-		op
-	}
-}
-
-function addEq() {
-	return {
-		type:"ADD_EQ"
-	}
-}
-
-function removeEq() {
-	return {
-		type:"REMOVE_EQ"
-	}
-}
-
-const actions = {
-	newGame,
-	reset,
-	addCard,
-	removeCard,
-	addOp,
-	addEq,
-	removeEq
-}
-
 // Utility functions
 
 function canAddNumber (state) {
