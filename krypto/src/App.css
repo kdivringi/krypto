@@ -159,6 +159,7 @@ li.card {
   border: 1px dashed grey;
 }
 
+
 li.card-first {
   float: left;
   padding: 5px;
@@ -253,4 +254,28 @@ footer {
 
 footer p {
   padding: 5px;
+}
+
+/*Animations*/
+
+.card-anim-enter {
+  opacity: 0.1;
+  transform: translateY(-25%);
+}
+
+.card-anim-enter.card-anim-enter-active {
+  opacity: 1;
+  transform: translateY(0%);
+  transition: all 250ms ease-in;
+}
+
+.card-anim-leave {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card-anim-leave.card-anim-leave-active {
+  opacity: 0.01;
+  transform: translateY(25%);
+  transition: all 250ms ease-in;
 }

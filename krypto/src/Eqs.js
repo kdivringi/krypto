@@ -1,27 +1,23 @@
 import React from 'react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+
 
 class Eqs extends React.Component {
-
-	renderPlaceHolder (eqs, board) {
-		if (eqs.length===0 && board.length === 3) {
-			return (
-				<p className="board-placeholder">
-				Modify the operation order by placing equations here. Click the = button to do so.
-				</p>
-			)
-		}
-	}
 
 	render () {
 		return(
 			<div className="Clearfix">
 			<ul className="vlist">
-				{this.renderPlaceHolder(this.props.eqs, this.props.board)}
+				<ReactCSSTransitionGroup
+				   transitionName="card-anim"
+				   transitionEnterTimeout={250}
+				   transitionLeaveTimeout={250}>
 				{this.props.eqs.map((c) => {
 					const key = this.props.eqs.indexOf(c);
+					const viz_key = c.id;
 					const last = 0 === key;
 					if (last) {
-						return (<li key={key}
+						return (<li key={viz_key}
 									onClick={() => this.props.removeEq(key)}
 									className="eqn eqn-active">{c.display()} 
 									<div className="small-detail"> (Remove)</div>
@@ -31,6 +27,7 @@ class Eqs extends React.Component {
 					}
 				}
 				)}
+				</ReactCSSTransitionGroup>
 			</ul>
 			</div>
 			)

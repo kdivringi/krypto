@@ -1,6 +1,7 @@
 export class Card {
-	constructor(value) {
+	constructor(value, id = "") {
 		this.value = value
+		this.id = "c" + id;
 	}
 
 	display () {
@@ -29,6 +30,14 @@ export class Op extends Card {
 }
 
 export class Paren extends Card {
+
+	constructor(value, id = "") {
+		super(value)
+		this.id = this.value
+					.filter(e => !(e instanceof Op))
+					.map(e => e.id)
+					.join("");
+	}
 
 	display() {
 		const inner = this.value.map((e) => e.display()).join(" ");

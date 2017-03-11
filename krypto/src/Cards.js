@@ -1,4 +1,6 @@
 import React from 'react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+
 
 class Cards extends React.Component {
 
@@ -7,15 +9,24 @@ class Cards extends React.Component {
 			<div className="Clearfix">
 			<ul className="hlist">
 			<li className="card-first">Cards:</li>
+				<ReactCSSTransitionGroup
+						   transitionName="card-anim"
+						   transitionEnterTimeout={250}
+						   transitionLeaveTimeout={250}>
 				{this.props.cards.map((c) => {
 					const key = this.props.cards.indexOf(c);
-					return (<li
-						className="card" 
-						key={key}
-						onClick={() => this.props.addCard(key)}
-						>{c.display()}</li> )
+					const viz_key = c.id;
+					return (
+						   <li
+						   key={viz_key}
+    						className="card" 
+						    onClick={() => this.props.addCard(key)}>
+						    {c.display()}
+						    </li>
+						 )
 				}
 				)}
+				</ReactCSSTransitionGroup>
 			</ul>
 			</div>
 			)

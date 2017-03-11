@@ -57,13 +57,15 @@ export function rootReducer(state = defaultState, action) {
 		    addToDeck(deck, 18, 25, 1);
 
 	        // Draw the cards
-		    let cards = [];
-		    for (let i = 0; i < 5; i++) {
-		      let num = Math.floor(Math.random()*deck.length);
-		      cards.push(new Card(deck[num]));
-		      deck.splice(num, 1);
+	        let cards = [];
+		    let draw = new Set();
+		    while (draw.size < 6) {
+		      draw.add(Math.floor(Math.random()*deck.length));
 		      }
-		    const target = deck[Math.floor(Math.random()*deck.length)];
+		    for (let item of draw) {
+		    	cards.push(new Card(deck[item], item))
+		    }
+		    const target =cards.pop().value;
 			return {
 				...defaultState,
 				cards,

@@ -1,23 +1,8 @@
 import React from 'react';
 import { Op } from './cardUtils';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 class Board extends React.Component {
-
-	renderPlaceHolder(board) {
-		if (this.props.target===-1) {
-			return <p className="board-placeholder">
-			(Click New Game to pick the cards and target to get started!)
-			</p> 
-		} else if (board.length===0 && this.props.eqs.length===0) {
-			return <p className="board-placeholder">
-			(Click the number cards above to get started)
-			</p>
-		} else if (board.length===1 && this.props.eqs.length===0) {
-			return <p className="board-placeholder">
-			(Now add an operation (+ - &times; &divide;)
-			</p>
-		} 
-	}
 
 	canAddNumber() {
 		if (this.props.board.length === 0) {
@@ -33,7 +18,10 @@ class Board extends React.Component {
 		return(
 			<div className="Clearfix">
 			<ul className="hlist">
-				{this.renderPlaceHolder(this.props.board)}
+				<ReactCSSTransitionGroup
+				   transitionName="card-anim"
+				   transitionEnterTimeout={250}
+				   transitionLeaveTimeout={250}>
 				{this.props.board.map((c) => {
 					const key = this.props.board.indexOf(c);
 					return (<li
@@ -43,6 +31,7 @@ class Board extends React.Component {
 						>{c.display()}</li> )
 				}
 				)}
+				</ReactCSSTransitionGroup>
 			{!this.canAddNumber() && 
 				this.props.board.length > 1 && 
 				<li className="card" onClick={() => this.props.addEq()}>=</li>}
